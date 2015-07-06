@@ -1,5 +1,5 @@
 import unittest
-from ..data_structure import stack,queue,union_find,union_find_by_rank,union_find_with_path_compression
+from ..data_structure import stack,queue,union_find,union_find_by_rank,union_find_with_path_compression, hashtable
 
 class TestStack(unittest.TestCase):
     """
@@ -15,7 +15,7 @@ class TestStack(unittest.TestCase):
         self.assertEqual(self.sta.remove(),2)
         self.assertEqual(self.sta.is_empty(),False)
         self.assertEqual(self.sta.size(),3)
-        
+
 class TestQueue(unittest.TestCase):
     """
     Test Queue Implementation
@@ -101,3 +101,71 @@ class TestUnionFindWithPathCompression(unittest.TestCase):
 
         self.assertEqual(self.uf.is_connected(3, 5), True)
 
+class TestHashTable(unittest.TestCase):
+    """
+    Test Hash Table Implementation
+    """
+    def setUp(self):
+        self.ht = hashtable.HashTable()
+        self.ht[1] = 'naughty'
+        self.ht[2] = 'nice'
+        self.ht['monte hall'] = -2
+        self.ht[-3] = (1,2)
+
+    def test_put_get_remove(self):
+        self.assertEqual(self.ht[1], 'naughty')
+        self.ht[1] = 'very naughty'
+        self.assertEqual(self.ht[1], 'very naughty')
+        self.assertEqual(self.ht[2], 'nice')
+        self.assertEqual(self.ht['monte hall'], -2)
+        self.assertEqual(self.ht[-3], (1,2))
+        self.assertEqual(self.ht.n, 4)
+        self.assertEqual(self.ht.table_size, 31)
+        self.ht.remove('monte hall')
+        self.assertEqual(self.ht['monte hall'], None)
+        self.assertEqual(self.ht.n, 3)
+        with self.assertRaises(TypeError):
+            self.ht[{}] = 1
+            self.ht[set(1,2,3)] = 'haha'
+        self.ht.remove(1)
+        with self.assertRaises(KeyError):
+            self.ht.remove(1)
+
+    def test_clear(self):
+        self.ht.clear()
+        self.assertEqual(self.ht.n,0)
+
+    def test_resize(self):
+        self.ht.clear()
+        for i in range(1, 6):
+            self.ht[1] = 'nice'
+            self.ht.remove(1)
+            if i == 5:
+                self.assertEqual(self.ht.table_size, 1)
+            else:
+                self.assertEqual(self.ht.table_size, 31 // 2**i)
+        for i in range(11):
+            self.ht[i] = str(i)
+            if i == 10:
+                self.assertEqual(self.ht.table_size, 2)
+            else:
+                self.assertEqual(self.ht.table_size, 1)
+
+    def test_is_empty(self):
+        self.ht.clear()
+        self.ht[1] = 'naughty'
+        self.assertFalse(self.ht.is_empty())
+        self.ht.remove(1)
+        self.assertTrue(self.ht.is_empty())
+
+    def test_contains(self):
+        self.assertTrue(self.ht.contains('monte hall'))
+        self.ht.remove('monte hall')
+        self.assertFalse(self.ht.contains('monte hall'))
+        with self.assertRaises(TypeError):
+            self.ht.remove({})
+
+    def test_keys(self):
+        self.assertEqual(set(self.ht.keys()), {1,2,-3,'monte hall'})
+        self.ht.remove('monte hall')
+        self.assertEqual(set(self.ht.keys()), {1,2,-3})
