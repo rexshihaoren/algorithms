@@ -11,7 +11,8 @@ from algorithms.data_structures import (
     union_find,
     union_find_by_rank,
     union_find_with_path_compression,
-    lcp_array
+    lcp_array,
+    hashtable
 )
 
 
@@ -252,7 +253,7 @@ class TestBinarySearchTree(unittest.TestCase):
             self.bst.put(k, v)
         for i in range(self.bst.size() - 1):
             self.bst.delete_min()
-            self.assertEqual(self.bst.min_key(), self.key_val[i+1][0])
+            self.assertEqual(self.bst.min_key(), self.key_val[i + 1][0])
         self.bst.delete_min()
         self.assertEqual(self.bst.min_key(), None)
 
@@ -263,7 +264,7 @@ class TestBinarySearchTree(unittest.TestCase):
             self.bst.put(k, v)
         for i in range(self.bst.size() - 1):
             self.bst.delete_min()
-            self.assertEqual(self.bst.min_key(), self.key_val[i+1][0])
+            self.assertEqual(self.bst.min_key(), self.key_val[i + 1][0])
         self.bst.delete_min()
         self.assertEqual(self.bst.min_key(), None)
 
@@ -274,7 +275,7 @@ class TestBinarySearchTree(unittest.TestCase):
             self.bst.put(k, v)
         for i in range(self.bst.size() - 1, 0, -1):
             self.bst.delete_max()
-            self.assertEqual(self.bst.max_key(), self.key_val[i-1][0])
+            self.assertEqual(self.bst.max_key(), self.key_val[i - 1][0])
         self.bst.delete_max()
         self.assertEqual(self.bst.max_key(), None)
 
@@ -285,7 +286,7 @@ class TestBinarySearchTree(unittest.TestCase):
             self.bst.put(k, v)
         for i in range(self.bst.size() - 1, 0, -1):
             self.bst.delete_max()
-            self.assertEqual(self.bst.max_key(), self.key_val[i-1][0])
+            self.assertEqual(self.bst.max_key(), self.key_val[i - 1][0])
         self.bst.delete_max()
         self.assertEqual(self.bst.max_key(), None)
 
@@ -371,6 +372,7 @@ class TestDirectedGraph(unittest.TestCase):
     """
     Test Undirected Graph Implementation
     """
+
     def test_directed_graph(self):
 
         # init
@@ -469,6 +471,7 @@ class TestQueue(unittest.TestCase):
     """
     Test Queue Implementation
     """
+
     def test_queue(self):
         self.que = queue.Queue()
         self.que.add(1)
@@ -511,6 +514,7 @@ class TestStack(unittest.TestCase):
     """
     Test Stack Implementation
     """
+
     def test_stack(self):
         self.sta = stack.Stack()
         self.sta.add(5)
@@ -527,6 +531,7 @@ class TestUndirectedGraph(unittest.TestCase):
     """
     Test Undirected Graph Implementation
     """
+
     def test_undirected_graph(self):
 
         # init
@@ -607,6 +612,7 @@ class TestUnionFind(unittest.TestCase):
     """
     Test Union Find Implementation
     """
+
     def test_union_find(self):
         self.uf = union_find.UnionFind(4)
         self.uf.make_set(4)
@@ -623,6 +629,7 @@ class TestUnionFindByRank(unittest.TestCase):
     """
     Test Union Find Implementation
     """
+
     def test_union_find_by_rank(self):
         self.uf = union_find_by_rank.UnionFindByRank(6)
         self.uf.make_set(6)
@@ -650,6 +657,7 @@ class TestUnionFindWithPathCompression(unittest.TestCase):
     """
     Test Union Find Implementation
     """
+
     def test_union_find_with_path_compression(self):
         self.uf = (
             union_find_with_path_compression
@@ -676,6 +684,7 @@ class TestUnionFindWithPathCompression(unittest.TestCase):
 
 
 class TestLCPSuffixArrays(unittest.TestCase):
+
     def setUp(self):
         super(TestLCPSuffixArrays, self).setUp()
         self.case_1 = "aaaaaa"
@@ -715,3 +724,74 @@ class TestLCPSuffixArrays(unittest.TestCase):
         s_array, rank = lcp_array.suffix_array(self.case_3)
         self.assertEqual(s_array, self.s_array_3)
         self.assertEqual(rank, self.rank_3)
+
+
+class TestHashTable(unittest.TestCase):
+    """
+    Test Hash Table Implementation
+    """
+
+    def setUp(self):
+        self.ht = hashtable.HashTable()
+        self.ht[1] = 'naughty'
+        self.ht[2] = 'nice'
+        self.ht['monte hall'] = -2
+        self.ht[-3] = (1, 2)
+
+    def test_put_get_remove(self):
+        self.assertEqual(self.ht[1], 'naughty')
+        self.ht[1] = 'very naughty'
+        self.assertEqual(self.ht[1], 'very naughty')
+        self.assertEqual(self.ht[2], 'nice')
+        self.assertEqual(self.ht['monte hall'], -2)
+        self.assertEqual(self.ht[-3], (1, 2))
+        self.assertEqual(self.ht.n, 4)
+        self.assertEqual(self.ht.table_size, 31)
+        self.ht.remove('monte hall')
+        self.assertEqual(self.ht['monte hall'], None)
+        self.assertEqual(self.ht.n, 3)
+        with self.assertRaises(TypeError):
+            self.ht[{}] = 1
+            self.ht[set(1, 2, 3)] = 'haha'
+        self.ht.remove(1)
+        with self.assertRaises(KeyError):
+            self.ht.remove(1)
+
+    def test_clear(self):
+        self.ht.clear()
+        self.assertEqual(self.ht.n, 0)
+
+    def test_resize(self):
+        self.ht.clear()
+        for i in range(1, 6):
+            self.ht[1] = 'nice'
+            self.ht.remove(1)
+            if i == 5:
+                self.assertEqual(self.ht.table_size, 1)
+            else:
+                self.assertEqual(self.ht.table_size, 31 // 2 ** i)
+        for i in range(11):
+            self.ht[i] = str(i)
+            if i == 10:
+                self.assertEqual(self.ht.table_size, 2)
+            else:
+                self.assertEqual(self.ht.table_size, 1)
+
+    def test_is_empty(self):
+        self.ht.clear()
+        self.ht[1] = 'naughty'
+        self.assertFalse(self.ht.is_empty())
+        self.ht.remove(1)
+        self.assertTrue(self.ht.is_empty())
+
+    def test_contains(self):
+        self.assertTrue(self.ht.contains('monte hall'))
+        self.ht.remove('monte hall')
+        self.assertFalse(self.ht.contains('monte hall'))
+        with self.assertRaises(TypeError):
+            self.ht.remove({})
+
+    def test_keys(self):
+        self.assertEqual(set(self.ht.keys()), {1, 2, -3, 'monte hall'})
+        self.ht.remove('monte hall')
+        self.assertEqual(set(self.ht.keys()), {1, 2, -3})
